@@ -1,0 +1,7 @@
+=> make
+=> sudo mount -o loop,rw /home/mopaniuk/test_kernel/qemu-image.img /mnt/
+=> sudo cp my_proc.ko /mnt/home/my_proc.ko
+=> sudo umount /mnt 
+=> qemu-system-x86_64 -kernel linux/arch/x86/boot/bzImage -hda qemu-image.img -append "root=/dev/sda rw" (in directory test_kernel)
+In QEMU :
+

@@ -7,6 +7,9 @@
 #include <linux/string.h>
 #include <linux/slab.h>
 #include <linux/uaccess.h>
+#include <linux/jiffies.h>
+#include <linux/param.h>
+#include <linux/timer.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("Peter Jay Salzman");
@@ -19,6 +22,7 @@ static int func_open( struct inode *, struct file * );
 static ssize_t func_read( struct file *, char *  , size_t, loff_t *);
 static ssize_t func_write(struct file *, const  char *, size_t, loff_t *);
 static int func_close(struct inode *, struct file * );
+static void my_timer_callback( struct timer_list *unused );
 
 struct file_operations f_fops = {
 	read    :       func_read,
@@ -27,8 +31,19 @@ struct file_operations f_fops = {
 	release :       func_close
 };
 
-struct cdev f_cdev;
+struct cdev *f_cdev;
 static char *msg = NULL;
+static unsigned long onesec;
+//static struct timer_list my_timer;
+
+static DEFINE_TIMER(my_timer, my_timer_callback);
+
+static void my_timer_callback( struct timer_list *unused )
+{
+	printk( "my_timer_callback called (%ld).\n", jiffies );
+
+	mod_timer(&my_timer, jiffies + onesec);
+}
 
 static int __init hello_init(void)	
 {
@@ -38,9 +53,11 @@ static int __init hello_init(void)
 	devno = MKDEV(MY_MAJOR, MY_MINOR);
 	register_chrdev_region(devno, MY_DEV_COUNT, "mykdev");
 
-	cdev_init(&f_cdev, &f_fops);
+	f_cdev = cdev_alloc();
 
-	err = cdev_add(&f_cdev, devno, MY_DEV_COUNT);
+	cdev_init(f_cdev, &f_fops);
+
+	err = cdev_add(f_cdev, devno, MY_DEV_COUNT);
 
 	if (err < 0) {
 		printk("Device Add Error!\n");
@@ -48,7 +65,7 @@ static int __init hello_init(void)
 	}
 
 	printk("Hello World.\n");
-	printk("'mknod /dev/mydev_0 c %d 0'.\n", MY_MAJOR);
+	printk("'mknod /dev/mykdev c %d 0'.\n", MY_MAJOR);
 
 	msg = (char *)kmalloc(32, GFP_KERNEL);
 	if (msg != NULL)
@@ -66,7 +83,8 @@ static void __exit hello_exit(void)
 
 	devno = MKDEV(MY_MAJOR, MY_MINOR);
 	unregister_chrdev_region(devno, MY_DEV_COUNT);
-	cdev_del(&f_cdev);
+	cdev_del(f_cdev);
+	del_timer(&my_timer);
 
 	printk(KERN_ALERT "Goodbye, cruel world\n");
 }
@@ -83,8 +101,17 @@ static int func_open(struct inode *inod, struct file *fil)
 
 static ssize_t func_read(struct file *filp, char *buff, size_t len, loff_t *off)
 {
-	int major, minor;
+	int major, minor, ret;
 	short count;
+
+	printk("Timer module installing\n");
+
+	onesec = msecs_to_jiffies(1000 * 1);
+
+	printk( "Starting timer to fire in 200ms (%ld)\n", jiffies );
+	ret = mod_timer( &my_timer, jiffies + msecs_to_jiffies(200) );
+	if (ret)
+		printk("Error in mod_timer\n");
 
 	major = MAJOR(filp->f_path.dentry->d_inode->i_rdev);
 	minor = MINOR(filp->f_path.dentry->d_inode->i_rdev);
@@ -108,6 +135,7 @@ static ssize_t func_write(struct file *filp, const char *buff, size_t len, loff_
 {
 	int major, minor;
 	short count;
+	unsigned long later = jiffies + 2*HZ;
 
 	memset(msg, 0, 32);
 	major = MAJOR(filp->f_path.dentry->d_inode->i_rdev);
@@ -118,14 +146,29 @@ static ssize_t func_write(struct file *filp, const char *buff, size_t len, loff_
 	printk("FILE OPERATION WRITE: %d : %d\n", major, minor);
 	printk("msg: %s", msg);
 
+	while(time_before(jiffies, later)) {
+		cpu_relax();
+	}
+
+	printk("Sleep for : %d", later);
+
 	return len;
 }
 
 static int func_close(struct inode *inod, struct file *fil)
 {
-	int minor = MINOR(fil->f_path.dentry->d_inode->i_rdev);
+	int minor = MINOR(fil->f_path.dentry->d_inode->i_rdev), ret;
+
+	ret = del_timer( &my_timer );
+	if (ret)
+		printk("The timer is still in use...\n");
+
+	printk("Timer module uninstalling\n");
+
 	printk("***** Closed device at minor %d *****\n", minor);
 	return 0;
+
+	kfree(f_cdev);
 }
 
 module_init(hello_init);
