@@ -1,0 +1,1 @@
+cmd_/home/nikita/qt_projects/mutex_kernel_example/mutex.ko := ld -r -m elf_x86_64 -z max-page-size=0x200000 -T ./scripts/module-common.lds --build-id  -o /home/nikita/qt_projects/mutex_kernel_example/mutex.ko /home/nikita/qt_projects/mutex_kernel_example/mutex.o /home/nikita/qt_projects/mutex_kernel_example/mutex.mod.o ;  true
