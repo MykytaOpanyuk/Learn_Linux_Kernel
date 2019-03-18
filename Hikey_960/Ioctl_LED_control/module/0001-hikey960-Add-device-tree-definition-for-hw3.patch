@@ -1,0 +1,67 @@
+From e1a1c2d7f8e95f50df28e5209c88cbc493ccdb9d Mon Sep 17 00:00:00 2001
+From: Sam Protsenko <semen.protsenko@linaro.org>
+Date: Mon, 12 Nov 2018 18:37:52 +0200
+Subject: [PATCH] hikey960: Add device tree definition for hw3
+
+Signed-off-by: Sam Protsenko <semen.protsenko@linaro.org>
+---
+ .../boot/dts/hisilicon/hi3660-hikey960.dts    | 29 ++++++-------------
+ 1 file changed, 9 insertions(+), 20 deletions(-)
+
+diff --git a/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts b/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts
+index b8afbc442b26..3299deb76632 100644
+--- a/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts
++++ b/arch/arm64/boot/dts/hisilicon/hi3660-hikey960.dts
+@@ -201,19 +201,6 @@
+ 		clock-output-names = "apb_pclk";
+ 	};
+ 
+-	keys {
+-		compatible = "gpio-keys";
+-		pinctrl-names = "default";
+-		pinctrl-0 = <&pwr_key_pmx_func &pwr_key_cfg_func>;
+-
+-		power {
+-			wakeup-source;
+-			gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
+-			label = "GPIO Power";
+-			linux,code = <KEY_POWER>;
+-		};
+-	};
+-
+ 	leds {
+ 		compatible = "gpio-leds";
+ 
+@@ -231,13 +218,6 @@
+ 			linux,default-trigger = "mmc0";
+ 		};
+ 
+-		user_led3 {
+-			label = "user_led3";
+-			/* gpio_189_user_led3 */
+-			gpios = <&gpio23 5 0>;
+-			default-state = "off";
+-		};
+-
+ 		user_led4 {
+ 			label = "user_led4";
+ 			/* gpio_190_user_led4 */
+@@ -262,6 +242,15 @@
+ 		};
+ 	};
+ 
++	hw3 {
++		compatible = "globallogic,hw3";
++		button-gpios = <&gpio4 2 GPIO_ACTIVE_LOW>;
++		led-gpios = <&gpio23 5 GPIO_ACTIVE_HIGH>;
++		pinctrl-names = "default";
++		pinctrl-0 = <&pwr_key_pmx_func &pwr_key_cfg_func>;
++		/* gpio23_5 is already muxed correctly */
++	};
++
+ 	pmic: pmic@fff34000 {
+ 		compatible = "hisilicon,hi6421v530-pmic";
+ 		reg = <0x0 0xfff34000 0x0 0x1000>;
+-- 
+2.19.1
+
