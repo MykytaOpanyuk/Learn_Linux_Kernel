@@ -1,23 +1,24 @@
+ifneq ($(KERNELRELEASE),)
 
-# To build modules outside of the kernel tree, we run "make"
-# in the kernel source tree; the Makefile these then includes this
-# Makefile once again.
-# This conditional selects whether we are being included from the
-# kernel Makefile or not.
+# kbuild part of makefile
 
-KERNELDIR=/home/mykyta/Learning_linux_kernel_BBB/BeagleBone_Black/linux
-CROSS_COMPILING := /opt/gcc-linaro-7.3.1-2018.05-x86_64_arm-linux-gnueabihf/bin/arm-linux-gnueabihf-
-PWD := $(shell pwd)
-obj-m = platform_test.o platform_cdev.o platform_misc.o
+CFLAGS_hw2.o := -DDEBUG
+obj-m := platform_test.o platform_misc.o platform_cdev.o
 
-modules:
-	make ARCH=arm CROSS_COMPILE=$(CROSS_COMPILING) -C $(KERNELDIR) M=$(PWD) modules
+else
 
-modules_install:
-	make ARCH=arm CROSS_COMPILE=$(CROSS_COMPILING) -C $(KERNELDIR) M=$(PWD) modules_install
+# normal makefile
 
+KDIR ?= /lib/modules/$(shell uname -r)/build
+
+module:
+	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILING) -C $(KDIR) M=$(PWD) C=1 modules
 clean:
-	rm -rf *.o *~ core .depend .*.cmd *.ko *.mod.c .tmp_versions Module.symvers modules.order
+	$(MAKE) ARCH=$(ARCH) CROSS_COMPILE=$(CROSS_COMPILING) -C $(KDIR) M=$(PWD) C=1 clean
+# USER_C - C userspace program	
+user:
+	$(CROSS_COMPILING) $(USER_C) -o $(USER)
 
-.PHONY: modules modules_install clean
+.PHONY: module clean
 
+endif

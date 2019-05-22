@@ -29,14 +29,13 @@ static struct file_operations mmap_fops = {
         .owner = THIS_MODULE,
 };
 
-// internal data
-// length of the two memory areas
+/* internal data, length of the two memory areas */
 #define NPAGES 16
-// pointer to the vmalloc'd area - alway page aligned
+/* pointer to the vmalloc'd area - alway page aligned */
 static int *vmalloc_area;
-// pointer to the kmalloc'd area, rounded up to a page boundary
+/* pointer to the kmalloc'd area, rounded up to a page boundary */
 static int *kmalloc_area;
-// original pointer for kmalloc'd area as returned by kmalloc
+/* original pointer for kmalloc'd area as returned by kmalloc */
 static void *kmalloc_ptr;
 
 /* character device open method */

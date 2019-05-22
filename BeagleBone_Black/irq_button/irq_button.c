@@ -1,28 +1,3 @@
-/*
-* mouse_irq.c - Module for testing IRQ's handling
-*
-* Hard IRQ schedules tasklet
-*
-* Copyright (C)
-*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~
-*
-* This program is free software; you can redistribute it and/or modify
-* it under the terms of the GNU General Public License as published by
-* the Free Software Foundation; either version 2 of the License, or (at
-* your option) any later version.
-
-*
-* This program is distributed in the hope that it will be useful, but
-* WITHOUT ANY WARRANTY; without even the implied warranty of
-* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-* General Public License for more details.
-*
-*
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-~~
-*/
 #include <linux/init.h>
 #include <linux/module.h>
 #include <linux/spinlock.h>
@@ -31,10 +6,6 @@
 
 #define GPIO2_8		32 + 32 + 8 //IRQ number
 static unsigned int irqNumber;
-
-MODULE_AUTHOR("John Doe, Mykyta Opanyuk");
-MODULE_DESCRIPTION("Testing of button IRQ handling");
-MODULE_LICENSE("Dual BSD/GPL");
 
 /* Device context declaration */
 struct fake_dev_ctx {
@@ -77,7 +48,8 @@ static int __init test_sync_module_init(void)
 	static int ret = 0;
 
 	memset(&fake_dev, 0, sizeof(fake_dev));
-	/* init tasklet before interrupt requesting - we use it inside interrupt handler */
+	/* init tasklet before interrupt requesting - 
+	 * we use it inside interrupt handler */
 	tasklet_init(&fake_dev.taskl, taskl_func, (unsigned long)&fake_dev);
 	/* request irq */
 
@@ -98,7 +70,8 @@ static int __init test_sync_module_init(void)
 	ret = gpio_get_value(GPIO2_8);
 	printk("=== The button value now: %d\n", ret);
 
-	ret = request_irq(irqNumber, button_irq_handler_up_down, IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING, "user boot", &fake_dev);
+	ret = request_irq(irqNumber, button_irq_handler_up_down, 
+		IRQF_TRIGGER_FALLING | IRQF_TRIGGER_RISING, "user boot", &fake_dev);
 	if (ret != 0) {
 		printk("=== FAILED; ret = %d \n", ret);
 		return -EBUSY;
@@ -121,3 +94,7 @@ static void __exit test_sync_module_exit(void)
 
 module_init(test_sync_module_init);
 module_exit(test_sync_module_exit);
+
+MODULE_AUTHOR("John Doe, Mykyta Opanyuk");
+MODULE_DESCRIPTION("Testing of button IRQ handling");
+MODULE_LICENSE("Dual BSD/GPL");

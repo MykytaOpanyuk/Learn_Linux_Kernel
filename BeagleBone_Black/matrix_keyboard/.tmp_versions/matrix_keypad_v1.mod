@@ -1,0 +1,3 @@
+/home/mykyta/Learning_linux_kernel_BBB/BeagleBone_Black/linux-stable/Linux_modules/matrix_keyboard/matrix_keypad_v1.ko
+/home/mykyta/Learning_linux_kernel_BBB/BeagleBone_Black/linux-stable/Linux_modules/matrix_keyboard/matrix_keypad_v1.o
+

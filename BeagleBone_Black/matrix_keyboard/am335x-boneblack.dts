@@ -1,0 +1,68 @@
+/*
+ * Copyright (C) 2012 Texas Instruments Incorporated - http://www.ti.com/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License version 2 as
+ * published by the Free Software Foundation.
+ */
+/dts-v1/;
+
+#include "am33xx.dtsi"
+#include "am335x-bone-common.dtsi"
+#include "am335x-boneblack-common.dtsi"
+
+/ {
+	model = "TI AM335x BeagleBone Black";
+	compatible = "ti,am335x-bone-black", "ti,am335x-bone", "ti,am33xx";
+};
+
+&cpu0_opp_table {
+	/*
+	 * All PG 2.0 silicon may not support 1GHz but some of the early
+	 * BeagleBone Blacks have PG 2.0 silicon which is guaranteed
+	 * to support 1GHz OPP so enable it for PG 2.0 on this board.
+	 */
+	oppnitro-1000000000 {
+		opp-supported-hw = <0x06 0x0100>;
+	};
+};
+&am33xx_pinmux {
+	hw3_pins: hw3_pins {
+		pinctrl-single,pins = <
+			/* gpmc_ad11.gpio0_26 */
+			AM33XX_IOPAD(0x828, PIN_INPUT | MUX_MODE7)
+			/* gpmc_ad11.gpio0_27 */
+			AM33XX_IOPAD(0x82c, PIN_INPUT | MUX_MODE7)
+			/* gpmc_ad11.gpio1_12 */
+			AM33XX_IOPAD(0x830, PIN_INPUT | MUX_MODE7)
+			/* gpmc_ad11.gpio1_13 */
+			AM33XX_IOPAD(0x834, PIN_INPUT | MUX_MODE7)
+			/* gpmc_ad11.gpio1_14 */
+			AM33XX_IOPAD(0x838, PIN_INPUT | MUX_MODE7)
+			/* gpmc_ad11.gpio1_15 */
+			AM33XX_IOPAD(0x83c, PIN_INPUT | MUX_MODE7)
+			/* gpmc_ad11.gpio1_17 */
+			AM33XX_IOPAD(0x844, PIN_INPUT | MUX_MODE7)
+			/* gpmc_ad11.gpio1_29 */
+			AM33XX_IOPAD(0x87c, PIN_INPUT | MUX_MODE7)
+		>;
+	};
+};
+
+/ {
+	hw3 {
+		compatible = "globallogic,hw3";
+		buttonx1-gpios = <&gpio0 26 GPIO_ACTIVE_LOW>;
+		buttonx2-gpios = <&gpio0 27 GPIO_ACTIVE_LOW>;
+		buttonx3-gpios = <&gpio1 12 GPIO_ACTIVE_LOW>;
+		buttonx4-gpios = <&gpio1 13 GPIO_ACTIVE_LOW>;
+		buttony1-gpios = <&gpio1 14 GPIO_ACTIVE_LOW>;
+		buttony2-gpios = <&gpio1 15 GPIO_ACTIVE_LOW>;
+		buttony3-gpios = <&gpio1 17 GPIO_ACTIVE_LOW>;
+		buttony4-gpios = <&gpio1 29 GPIO_ACTIVE_LOW>;
+		debounce-delay-ms = <5>;
+		wakeup-source;
+		pinctrl-names = "default";
+		pinctrl-0 = <&hw3_pins>;
+	};
+};
