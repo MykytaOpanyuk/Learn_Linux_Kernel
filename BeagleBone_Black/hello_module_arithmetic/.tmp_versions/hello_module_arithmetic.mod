@@ -1,3 +1,0 @@
-/home/mykyta/Learning_linux_kernel_BBB/qt_projects_BBB/hello_module_arithmetic/hello_module_arithmetic.ko
-/home/mykyta/Learning_linux_kernel_BBB/qt_projects_BBB/hello_module_arithmetic/hello_module_arithmetic.o
-

@@ -150,6 +150,8 @@ int main(int argc, char **argv)
 		while (*read_flag_addr & PLAT_I_DATA_READY)
 			usleep(5000);
 		
+		printf("Left symbols: %u;\n", len);
+
 		count = len > my_devices[device].read_mem_size ? 
 				my_devices[device].read_mem_size : len;
 		memcpy((void *)read_mem_addr, buf, count);

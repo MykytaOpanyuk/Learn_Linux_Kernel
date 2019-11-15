@@ -101,6 +101,12 @@ static void matrix_keypad_scan(struct work_struct *work)
 		activate_col(keypad, col, 0);
 	}
 
+	for (i = 0; i < keypad->num_col_gpios; i++)
+		pr_info("new_cols_state[%d] = %d;", i, new_cols_state[i]);
+
+	for (i = 0; i < keypad->num_col_gpios; i++)
+		pr_info("Old cols_state[%d] = %d;", i, keypad->cols_state[i]);
+
 	for (col = 0; col < keypad->num_col_gpios; col++) {
 		u32 changing = new_cols_state[col] ^ keypad->cols_state[col];
 		if (changing == 0)
@@ -302,14 +308,14 @@ static struct matrix_keypad *matrix_keypad_parse_dt(struct device *dev)
 
 	pdata->num_row_gpios = pdata->num_col_gpios = 0;
 	pdata->num_row_gpios = of_gpio_named_count(np, "row-gpios");
-	pdata->num_col_gpios = of_gpio_named_count(np, "column-gpios");
+	pdata->num_col_gpios = of_gpio_named_count(np, "col-gpios");
 	if (pdata->num_row_gpios <= 0 || pdata->num_col_gpios <= 0) {
 		dev_err(dev, "number of keypad rows/columns not specified\n");
 		return ERR_PTR(-EINVAL);
 	}
 
-	pr_info("--> num_col_gpios: %d; \n num_row_gpios: %d\n",
-			pdata->num_row_gpios, pdata->num_col_gpios);
+	pr_info("--> num_col_gpios: %d;\n", pdata->num_col_gpios);
+	pr_info("--> num_row_gpios: %d;\n", pdata->num_row_gpios);
 
 	pdata->wakeup = of_property_read_bool(np, "wakeup-source") ||
 			of_property_read_bool(np, "linux,wakeup");
@@ -345,7 +351,7 @@ static struct matrix_keypad *matrix_keypad_parse_dt(struct device *dev)
 
 	for (i = 0; i < pdata->num_col_gpios; i++) {
 		err = devm_gpiod_get_from_of_node(dev, np,
-				"column-gpios", i, GPIOD_IN, "column gpios");
+				"col-gpios", i, GPIOD_IN, "col gpios");
 		if (!err)
 			return ERR_PTR(-1);
 		pdata->col_gpios[i] = err;
@@ -427,7 +433,7 @@ static int matrix_keypad_remove(struct platform_device *dev)
 }
 
 static const struct of_device_id matrix_keypad_of_match[] = {
-	{ .compatible = "matrix_keypad" },
+	{ .compatible = "matrix-keypad" },
 	{}
 };
 MODULE_DEVICE_TABLE(of, matrix_keypad_of_match);

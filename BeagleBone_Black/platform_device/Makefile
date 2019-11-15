@@ -3,7 +3,8 @@ ifneq ($(KERNELRELEASE),)
 # kbuild part of makefile
 
 CFLAGS_hw2.o := -DDEBUG
-obj-m := mmap.o
+obj-m := platform_test_dts.o
+# Use multi_v7_defconfig as a base for merge_config.sh
 
 else
 

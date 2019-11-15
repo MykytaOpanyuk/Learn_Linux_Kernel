@@ -56,7 +56,7 @@ int main(int argc, char **argv)
 
 	result = read(fd_str.fd, buf, MEM_SIZE);
 
-	if (result != 0)
+	if (result == 0)
 		printf("--> ERROR - read dummy dev %d\n", result);
 
 //	timetable = buf;
